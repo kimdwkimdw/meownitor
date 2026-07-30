@@ -24,7 +24,8 @@
 - [x] K01 15동작
 - [x] K02 15동작
 - [x] K03 15동작
-- [ ] K04~K10 15동작
+- [x] K04 15동작
+- [ ] K05~K10 15동작
 - [ ] U01~U10 15동작
 - [ ] 20개 팩 전체 contact sheet·GIF 최종 QA
 - [ ] 공개 GitHub Release에 팩과 manifest 게시
