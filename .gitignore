@@ -1,0 +1,15 @@
+.build/
+.swiftpm/
+.DS_Store
+.codex-logs/
+dist/
+
+# All runtime artwork and localized resources are release artifacts, never Git objects.
+Resources/
+*.gif
+*.icns
+*.jpeg
+*.jpg
+*.png
+*.webp
+*.zip

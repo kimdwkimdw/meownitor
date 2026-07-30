@@ -1,0 +1,21 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  app:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift test
+      - run: Scripts/build-app.sh
+      - run: mkdir -p dist && ditto -c -k --keepParent .build/Meownitor.app dist/Meownitor.zip
+      - run: gh release create "$GITHUB_REF_NAME" dist/Meownitor.zip --generate-notes --title "Meownitor $GITHUB_REF_NAME"
+        env:
+          GH_TOKEN: ${{ github.token }}
