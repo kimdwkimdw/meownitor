@@ -13,6 +13,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - run: Scripts/bootstrap-bundled-assets.sh
       - run: swift test
       - run: Scripts/build-app.sh
       - run: mkdir -p dist && ditto -c -k --keepParent .build/Meownitor.app dist/Meownitor.zip

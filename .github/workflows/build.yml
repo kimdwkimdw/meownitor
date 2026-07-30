@@ -9,4 +9,6 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - run: Scripts/bootstrap-bundled-assets.sh
       - run: swift test
+      - run: Scripts/build-app.sh

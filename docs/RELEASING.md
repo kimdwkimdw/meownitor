@@ -6,7 +6,7 @@
 ./Scripts/build-bundled-assets.sh
 ```
 
-공개 저장소 생성 후 Elsa·아이콘·현지화를 코드와 분리해 게시합니다.
+Elsa·아이콘·현지화는 코드와 분리된 `bundled-assets-v1` Release에 게시합니다.
 
 ```bash
 gh release create bundled-assets-v1 \
@@ -27,7 +27,7 @@ CAT_PACK_TAG=cat-packs-v1 \
 ./Scripts/build-cat-packs.sh K02
 ```
 
-검수 후 Release를 만듭니다.
+검수 후 `cat-packs-v1` Release를 만들거나 기존 자산과 카탈로그를 교체합니다.
 
 ```bash
 gh release create cat-packs-v1 \
@@ -36,7 +36,7 @@ gh release create cat-packs-v1 \
   --title "Meownitor Cat Packs v1"
 ```
 
-게시된 `cat-packs.json`을 `Resources/CatPacks/cat-packs.json`에 복사하고 앱 테스트를 다시 실행합니다. 존재하지 않는 URL이나 QA 미완료 ID를 수동으로 카탈로그에 추가하지 않습니다.
+앱은 게시된 `cat-packs.json`을 직접 읽습니다. 존재하지 않는 URL이나 QA 미완료 ID를 수동으로 카탈로그에 추가하지 않습니다.
 
 ## 앱
 
@@ -56,3 +56,5 @@ git push origin v0.3.0
 - README의 진행 상태가 실제 QA와 일치
 - 앱 ZIP에 Elsa 15개와 승인된 catalog만 존재
 - Release URL에서 다운로드·설치·삭제 왕복 성공
+
+현재 `bundled-assets-v1`과 K02가 포함된 `cat-packs-v1`은 게시됐고, 새 clone의 bootstrap·테스트·빌드·ad-hoc 서명 검증을 통과했습니다. Developer ID 서명, notarization, 앱 버전 태그는 아직 남아 있습니다.
