@@ -57,4 +57,4 @@ git push origin v0.3.0
 - 앱 ZIP에 Elsa 15개와 승인된 catalog만 존재
 - Release URL에서 다운로드·설치·삭제 왕복 성공
 
-현재 `bundled-assets-v1`과 K02가 포함된 `cat-packs-v1`은 게시됐고, 새 clone의 bootstrap·테스트·빌드·ad-hoc 서명 검증을 통과했습니다. Developer ID 서명, notarization, 앱 버전 태그는 아직 남아 있습니다.
+현재 `bundled-assets-v1`과 K02·K03이 포함된 `cat-packs-v1`은 게시됐고, 새 clone의 bootstrap·테스트·빌드·ad-hoc 서명 검증을 통과했습니다. Developer ID 서명, notarization, 앱 버전 태그는 아직 남아 있습니다.

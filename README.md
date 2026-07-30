@@ -31,11 +31,11 @@ Elsa HD는 앱에 기본 포함됩니다. 한국 10종과 미국 10종은 설정
 - Elsa HD: 완료, 기본 포함
 - K02 Cheese: 15/15 실사 동작과 QA 완료
 - K01 Hodu: 10/15 실사 동작
-- K03 Mochi: 6/15 실사 동작
+- K03 Mochi: 15/15 실사 동작과 QA 완료
 - 나머지 18종: 실사 애니메이션 교체 진행 중
 - GitHub 공개 저장소: 소스만 게시 완료
 - `bundled-assets-v1`: Elsa·아이콘·현지화 자산 게시 및 clean-clone 빌드 검증 완료
-- `cat-packs-v1`: K02 선택 다운로드 팩 게시 완료
+- `cat-packs-v1`: K02·K03 선택 다운로드 팩 게시 완료
 
 ## 개발
 

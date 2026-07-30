@@ -61,11 +61,13 @@ for cat_id in "$@"; do
   bytes=$(stat -f '%z' "$archive")
   url="https://github.com/$REPOSITORY/releases/download/$TAG/$archive_name"
 
-  printf '%s    {"id":"%s","version":1,"bytes":%s,"sha256":"%s","url":"%s"}' \
-    "$separator" "$cat_id" "$bytes" "$digest" "$url" >>"$MANIFEST"
-  separator=',\n'
+  [ -z "$separator" ] || printf ',\n' >>"$MANIFEST"
+  printf '    {"id":"%s","version":1,"bytes":%s,"sha256":"%s","url":"%s"}' \
+    "$cat_id" "$bytes" "$digest" "$url" >>"$MANIFEST"
+  separator=written
 done
 
 printf '\n  ]\n}\n' >>"$MANIFEST"
+python3 -m json.tool "$MANIFEST" >/dev/null
 rm -rf "$OUT/staging"
 echo "$OUT"

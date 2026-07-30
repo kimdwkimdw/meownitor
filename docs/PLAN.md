@@ -23,12 +23,12 @@
 - [x] Application Support 자산 로더와 무결성 검사
 - [ ] K01 남은 5동작
 - [x] K02 15동작
-- [ ] K03 남은 9동작
+- [x] K03 15동작
 - [ ] K04~K10 15동작
 - [ ] U01~U10 15동작
 - [ ] 20개 팩 전체 contact sheet·GIF 최종 QA
 - [ ] 공개 GitHub Release에 팩과 manifest 게시
-- [ ] 실제 Release 다운로드·삭제 왕복 검증
+- [x] 실제 Release 다운로드·삭제 왕복 검증
 - [ ] Developer ID 서명·notarization 결정 및 적용
 - [ ] 최종 앱 설치·실기 QA
 
