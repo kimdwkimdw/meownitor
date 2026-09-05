@@ -13,3 +13,6 @@ Resources/
 *.png
 *.webp
 *.zip
+
+# Only optimized website previews belong in Git; full artwork stays in Releases.
+!web/assets/*.webp

@@ -9,8 +9,8 @@ elif [ ! -f "$ROOT/Resources/Meownitor.icns" ]; then
   echo "missing release assets; run Scripts/bootstrap-bundled-assets.sh" >&2
   exit 1
 fi
-swift build -c release --package-path "$ROOT"
-BIN_DIR=$(swift build -c release --package-path "$ROOT" --show-bin-path)
+swift build -c release --package-path "$ROOT" "$@"
+BIN_DIR=$(swift build -c release --package-path "$ROOT" "$@" --show-bin-path)
 
 rm -rf "$APP"
 mkdir -p \
@@ -26,6 +26,11 @@ cp "$ROOT/Resources/ko.lproj/InfoPlist.strings" \
 cp "$ROOT/Resources/en.lproj/InfoPlist.strings" \
   "$APP/Contents/Resources/en.lproj/InfoPlist.strings"
 cp "$ROOT"/Resources/ElsaHD/runtime/*.webp "$APP/Contents/Resources/ElsaHD/"
+for cat_id in K01 K02 K03; do
+  mkdir -p "$APP/Contents/Resources/Cats/$cat_id"
+  cp "$ROOT"/Resources/Cats/"$cat_id"/strips/*.webp \
+    "$APP/Contents/Resources/Cats/$cat_id/"
+done
 if [ -f "$ROOT/Resources/CatPacks/cat-packs.json" ]; then
   cp "$ROOT/Resources/CatPacks/cat-packs.json" "$APP/Contents/Resources/"
 fi

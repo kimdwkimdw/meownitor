@@ -1,79 +1,57 @@
-# 목펴라냥 (Meownitor)
+# Meownitor · 목펴라냥
 
-MacBook을 내장 화면과 내장 키보드만으로 25분 이상 사용할 때 귀여운 실사 고양이로 자세를 환기하는 macOS 메뉴바 앱입니다.
+A small cat. A gentler workday. A native macOS menu bar companion that reminds you to sit up and take a break.
 
-## 주요 동작
+**[English](https://kimdwkimdw.github.io/meownitor/?lang=en) · [한국어](https://kimdwkimdw.github.io/meownitor/?lang=ko) · [日本語](https://kimdwkimdw.github.io/meownitor/?lang=ja)**
 
-- MacBook + 외장 모니터 없음 + 내장 키보드 사용: 25분 후 큰 고양이 경고
-- 외장 모니터 또는 외장 키보드 사용: 경고 중지와 누적 시간 초기화
-- iMac: 큰 경고 없이 30~60분 간격의 작은 휴식 알림
-- Dock 아이콘 없이 메뉴바에서만 실행
-- 큰 경고에서 30분·1시간·2시간 미루기
-- `ESC` 두 번으로 즉시 닫기
-- 모든 고양이 UI는 MacBook 내장 화면에만 표시
+[Visit the website](https://kimdwkimdw.github.io/meownitor/) · [Download the alpha](https://github.com/kimdwkimdw/meownitor/releases/tag/v0.3.0-alpha.1) · [Report a problem](https://github.com/kimdwkimdw/meownitor/issues)
 
-입력 모니터링 권한은 선택 사항입니다. 권한이 없으면 외장 키보드는 구분하지 못하지만 외장 모니터 연결 여부만으로 앱을 사용할 수 있습니다. 키 입력 내용은 저장하거나 전송하지 않습니다.
+## What it does
 
-## 고양이
+- **MacBook:** a cat appears after 25 active minutes using the built-in screen and keyboard. Connecting an external display or using an external keyboard resets the timer.
+- **iMac:** a small break reminder every 30–60 minutes. Other desktop Macs do not show reminders.
+- Snooze for 30 minutes, one hour, or two; press Escape twice to dismiss. Cat overlays stay on the built-in display.
+- No camera, account, or saved keystrokes. Optional Input Monitoring permission distinguishes external keyboards; without it, display detection still works. Asset downloads connect to GitHub.
 
-Elsa HD는 앱에 기본 포함됩니다. 한국 10종과 미국 10종은 설정에서 보고, 원하는 고양이만 GitHub Release에서 내려받거나 삭제할 수 있습니다.
+The website supports **English, Korean, and Japanese**. The native app currently supports **English and Korean**.
 
-- 앱 기본 크기: 약 12MB
-- Elsa 런타임 자산: 별도 `bundled-assets-v1` Release의 WebP 15동작 × 7프레임
-- 추가 고양이: 고양이별 ZIP과 SHA-256이 기록된 카탈로그
-- 설치 전 검증: 체크섬, 정확한 15개 파일, 각 `8778×1254`
-- 저장 위치: `~/Library/Application Support/Meownitor/Cats/<ID>/`
+## Download only what you want
 
-추가 고양이는 단일 이미지를 이동·확대하는 방식이 아니라, 내장 `imagegen`으로 만든 네 개의 실제 핵심 자세와 세 개의 의미 기반 중간 자세를 사용합니다. 제작·시각 QA가 끝난 팩만 다운로드 카탈로그에 나타납니다.
+All full-size runtime assets are distributed through the [v0.3.0-alpha.1 release](https://github.com/kimdwkimdw/meownitor/releases/tag/v0.3.0-alpha.1), outside Git history.
 
-## 현재 상태
+| Download | Contents |
+| --- | --- |
+| `Meownitor-macOS-universal.zip` | macOS 13+ app for Apple silicon and Intel, with Elsa, Hodu, Cheese, and Mochi |
+| `Meownitor-Cat-<ID>-v1.zip` | One optional cat: K04–K10 or U01–U10. Choose it on the website or install from the app’s Settings |
+| `Meownitor-Bundled-Assets-v1.zip` | The four bundled cats, app icon, localized metadata, and download catalog for source builds |
+| `Meownitor-Web-Alpha.zip` | The standalone static website; serve with any HTTP server |
+| `cat-packs.json` / `SHA256SUMS.txt` | Pack URLs, sizes, and SHA-256 integrity checks |
 
-- Elsa HD: 완료, 기본 포함
-- K02 Cheese: 15/15 실사 동작과 QA 완료
-- K01 Hodu: 15/15 실사 동작과 QA 완료
-- K03 Mochi: 15/15 실사 동작과 QA 완료
-- K04 Kongi: 15/15 실사 동작과 QA 완료
-- K05 Dubu: 15/15 실사 동작과 QA 완료
-- 나머지 15종: 실사 애니메이션 교체 진행 중
-- GitHub 공개 저장소: 소스만 게시 완료
-- `bundled-assets-v1`: Elsa·아이콘·현지화 자산 게시 및 clean-clone 빌드 검증 완료
-- `cat-packs-v1`: K01·K02·K03·K04·K05 선택 다운로드 팩 게시 완료
+Each optional cat has 15 WebP animation strips, seven frames per strip, at `8778×1254`. The app validates the checksum and file structure before installing to `~/Library/Application Support/Meownitor/Cats/<ID>/`. Bundled cats cannot be removed; optional cats can be removed in Settings.
 
-## 개발
+**Alpha status:** the Mac app is ad-hoc signed and has not been notarized by Apple. macOS may block opening it. This release is for early testing; Developer ID signing and notarization remain future work. Existing `bundled-assets-v1` and `cat-packs-v1` releases are retained for older versions.
 
-요구 환경은 macOS 13 이상과 Swift 5.10 이상입니다.
+## Develop
 
-```bash
+macOS 13+, Swift 5.10+, and Node.js 22+ for website checks. The website has no package install or build step.
+
+```sh
 ./Scripts/bootstrap-bundled-assets.sh
 swift test
-./Scripts/build-app.sh
+./Scripts/build-app.sh --arch arm64 --arch x86_64
 codesign --verify --deep --strict .build/Meownitor.app
+
+node Scripts/check-web.mjs
+python3 -m http.server 8767 --bind 127.0.0.1 --directory web
 ```
 
-로컬 설치:
+Open `http://127.0.0.1:8767/`. Language links use `?lang=en`, `?lang=ko`, and `?lang=ja`. The first visit follows the browser language; an explicit choice is remembered locally. Reduced-motion preferences disable the preview animation.
 
-```bash
-rm -rf /Applications/Meownitor.app
-ditto .build/Meownitor.app /Applications/Meownitor.app
-open /Applications/Meownitor.app
-```
+GitHub Actions validates `web/` and deploys it to Pages on `main`. Only optimized web previews are tracked. `Resources/`, `dist/`, source artwork, intermediate frames, and local QA files stay out of Git.
 
-고양이 팩 생성:
+## Project guide
 
-```bash
-./Scripts/build-cat-packs.sh K02
-```
-
-스크립트는 15개 raw·intermediate·chroma·reflection QA 증거와 최종 스트립 규격이 모두 있을 때만 ZIP과 카탈로그를 만듭니다.
-
-`Resources/` 전체와 `dist/`는 Git에서 제외됩니다. Elsa·앱 아이콘·현지화는 `build-bundled-assets.sh`, 추가 고양이는 `build-cat-packs.sh`로 로컬에서 압축해 GitHub Release에만 올립니다.
-
-## 문서
-
-- [완성 계획](docs/PLAN.md)
-- [아키텍처](docs/ARCHITECTURE.md)
-- [동작 명세](docs/BEHAVIOR.md)
-- [자산 계약](docs/ASSETS.md)
-- [QA](docs/QA.md)
-- [릴리스 절차](docs/RELEASING.md)
-- [고양이 후보](docs/CAT-CANDIDATES.md)
+- [Behavior](docs/BEHAVIOR.md) · [Architecture](docs/ARCHITECTURE.md)
+- [Asset contract](docs/ASSETS.md) · [Cat catalog](docs/CAT-CANDIDATES.md)
+- [Release procedure](docs/RELEASING.md) · [QA](docs/QA.md)
+- [Alpha validation](docs/qa/WEB-ALPHA.md) · [Roadmap](docs/PLAN.md)

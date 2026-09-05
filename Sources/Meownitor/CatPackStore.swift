@@ -42,7 +42,7 @@ final class CatPackStore {
   static let shared = CatPackStore()
   static let remoteCatalogURL = URL(
     string:
-      "https://github.com/kimdwkimdw/meownitor/releases/download/cat-packs-v1/cat-packs.json"
+      "https://github.com/kimdwkimdw/meownitor/releases/download/v0.3.0-alpha.1/cat-packs.json"
   )!
 
   static let sequenceNames = [
@@ -89,7 +89,8 @@ final class CatPackStore {
     )
     let allowedIDs = Set(CatProfile.all.dropFirst().map(\.id))
     let packs = (catalog?.packs ?? []).filter {
-      Self.isValid($0, allowedIDs: allowedIDs)
+      !CatProfile.bundledIDs.contains($0.id)
+        && Self.isValid($0, allowedIDs: allowedIDs)
     }
     packsByID = Dictionary(uniqueKeysWithValues: packs.map { ($0.id, $0) })
   }
@@ -108,22 +109,25 @@ final class CatPackStore {
     let catalog = try JSONDecoder().decode(CatPackCatalog.self, from: data)
     let allowedIDs = Set(CatProfile.all.dropFirst().map(\.id))
     var validated: [String: CatPack] = [:]
+    var seenIDs: Set<String> = []
     for pack in catalog.packs {
-      guard Self.isValid(pack, allowedIDs: allowedIDs), validated[pack.id] == nil
+      guard Self.isValid(pack, allowedIDs: allowedIDs), seenIDs.insert(pack.id).inserted
       else {
         throw CatPackError.invalidArchive
       }
-      validated[pack.id] = pack
+      if !CatProfile.bundledIDs.contains(pack.id) {
+        validated[pack.id] = pack
+      }
     }
     packsByID = validated
   }
 
   func isInstalled(_ cat: CatProfile) -> Bool {
-    cat.id == "elsa" || sequenceURLs(for: cat).count == Self.sequenceNames.count
+    cat.isBundled || sequenceURLs(for: cat).count == Self.sequenceNames.count
   }
 
   func sequenceURLs(for cat: CatProfile) -> [URL] {
-    guard cat.id != "elsa" else { return [] }
+    guard !cat.isBundled else { return [] }
     let directory = rootDirectory.appendingPathComponent(cat.id).appendingPathComponent("strips")
     return Self.sequenceNames.compactMap { name in
       let url = directory.appendingPathComponent(name)
@@ -140,7 +144,8 @@ final class CatPackStore {
 
   func install(_ cat: CatProfile) async throws {
     let allowedIDs = Set(CatProfile.all.dropFirst().map(\.id))
-    guard let pack = pack(for: cat), Self.isValid(pack, allowedIDs: allowedIDs) else {
+    guard !cat.isBundled, let pack = pack(for: cat), Self.isValid(pack, allowedIDs: allowedIDs)
+    else {
       throw CatPackError.unavailable
     }
     let (archive, response) = try await URLSession.shared.download(from: pack.url)
@@ -195,7 +200,7 @@ final class CatPackStore {
   }
 
   func remove(_ cat: CatProfile) throws {
-    guard cat.id != "elsa" else { return }
+    guard !cat.isBundled else { return }
     let directory = rootDirectory.appendingPathComponent(cat.id)
     if fileManager.fileExists(atPath: directory.path) {
       try fileManager.removeItem(at: directory)
@@ -217,7 +222,7 @@ final class CatPackStore {
       && pack.url.scheme == "https"
       && pack.url.host == "github.com"
       && pack.url.path.hasPrefix(
-        "/kimdwkimdw/meownitor/releases/download/cat-packs-v1/"
+        Self.remoteCatalogURL.deletingLastPathComponent().path + "/"
       )
   }
 

@@ -1,60 +1,48 @@
-# 릴리스
+# Releases and GitHub Pages
 
-## 기본 번들 자산
+The website and Mac alpha use `v0.3.0-alpha.1`. Release assets are immutable for this alpha: the older `bundled-assets-v1` and `cat-packs-v1` releases remain unchanged for older clients. The `v1` in each ZIP filename is its asset format version.
 
-```bash
+## Prepare the curated artifacts
+
+On the asset-production Mac, with ImageMagick, Node.js 22+, and the existing verified `Resources/` tree:
+
+```sh
+./Scripts/build-cat-packs.sh K04 K05 K06 K07 K08 K09 K10 U01 U02 U03 U04 U05 U06 U07 U08 U09 U10
+cp dist/cat-packs/cat-packs.json Resources/CatPacks/cat-packs.json
 ./Scripts/build-bundled-assets.sh
-```
-
-Elsa·아이콘·현지화는 코드와 분리된 `bundled-assets-v1` Release에 게시합니다.
-
-```bash
-gh release create bundled-assets-v1 \
-  dist/bundled-assets/Meownitor-Bundled-Assets-v1.zip \
-  dist/bundled-assets/Meownitor-Bundled-Assets-v1.zip.sha256 \
-  --title "Meownitor Bundled Assets v1"
-```
-
-새 clone은 `Scripts/bootstrap-bundled-assets.sh`로 이를 복원합니다. `Resources/` 파일을 `git add -f`로 우회해 넣지 않습니다.
-
-## 고양이 팩
-
-QA가 완료된 ID만 명시합니다.
-
-```bash
-CAT_PACK_REPOSITORY=kimdwkimdw/meownitor \
-CAT_PACK_TAG=cat-packs-v1 \
-./Scripts/build-cat-packs.sh K02
-```
-
-검수 후 `cat-packs-v1` Release를 만들거나 기존 자산과 카탈로그를 교체합니다.
-
-```bash
-gh release create cat-packs-v1 \
-  dist/cat-packs/Meownitor-Cat-*-v1.zip \
-  dist/cat-packs/cat-packs.json \
-  --title "Meownitor Cat Packs v1"
-```
-
-앱은 게시된 `cat-packs.json`을 직접 읽습니다. 존재하지 않는 URL이나 QA 미완료 ID를 수동으로 카탈로그에 추가하지 않습니다.
-
-## 앱
-
-```bash
+node Scripts/build-web-assets.mjs
+node Scripts/check-web.mjs
 swift test
-./Scripts/build-app.sh
-git tag v0.3.0
-git push origin v0.3.0
+./Scripts/build-app.sh --arch arm64 --arch x86_64
+codesign --verify --deep --strict .build/Meownitor.app
+lipo -archs .build/Meownitor.app/Contents/MacOS/Meownitor
 ```
 
-`v*` 태그는 GitHub Actions에서 앱 ZIP을 만듭니다. 현재 로컬 빌드는 ad-hoc 서명이므로, 일반 사용자에게 배포하기 전 Developer ID 인증서·notarytool 자격 증명·stapling을 추가해야 합니다.
+The pack builder verifies all 15 production sequences by name. Extra experimental source folders may remain locally; they are never packaged. A clean source checkout can bootstrap the four bundled cats. Regenerating all web previews also requires the optional cats under `Resources/Cats/<ID>/strips` and their pack manifest; normal website validation and deployment need neither full-size assets nor ImageMagick.
 
-공개 전 최종 확인:
+Package only these files in `dist/web-alpha/`:
 
-- 저장소에 `Resources/Cats`, Elsa 제작 원본, `.codex-logs`, 비밀값이 추적되지 않음
-- 저장소에 `Resources/` 파일이 하나도 추적되지 않음
-- README의 진행 상태가 실제 QA와 일치
-- 앱 ZIP에 Elsa 15개와 승인된 catalog만 존재
-- Release URL에서 다운로드·설치·삭제 왕복 성공
+```sh
+mkdir -p dist/web-alpha
+cp dist/cat-packs/*.zip dist/cat-packs/cat-packs.json dist/web-alpha/
+cp dist/bundled-assets/*.zip dist/bundled-assets/*.sha256 dist/web-alpha/
+ditto -c -k --norsrc --noextattr --keepParent .build/Meownitor.app dist/web-alpha/Meownitor-macOS-universal.zip
+(cd web && zip -q -r ../dist/web-alpha/Meownitor-Web-Alpha.zip . -x '*.DS_Store')
+(cd dist/web-alpha && shasum -a 256 *.zip cat-packs.json *.sha256 > SHA256SUMS.txt)
+```
 
-현재 `bundled-assets-v1`과 K01·K02·K03·K04가 포함된 `cat-packs-v1`은 게시됐고, 새 clone의 bootstrap·테스트·빌드·ad-hoc 서명 검증을 통과했습니다. Developer ID 서명, notarization, 앱 버전 태그는 아직 남아 있습니다.
+Do not upload `Resources/` wholesale, raw/intermediate/QA images, development logs, or staging directories. The release should have 23 assets: 17 cat ZIPs, one bundled ZIP and its checksum, one app ZIP, one website ZIP, the catalog, and the checksum manifest.
+
+## Publish
+
+Review and commit the source to a `codex/` branch first. Push that branch, then create a draft prerelease targeting its exact commit and upload the prepared artifacts. Validate draft asset sizes and hashes before publishing. Publish with `--prerelease --latest=false`; the release tag points to the source being shipped. Do not rewrite older releases.
+
+The `Release` tag workflow rebuilds and tests the source. If the release already exists, it does not replace published artifacts. Once verified, fast-forward `main` to the same commit. Configure the repository’s Pages source as **GitHub Actions**; the `Pages` workflow checks and deploys only `web/`.
+
+After publishing, independently download the public assets, verify `SHA256SUMS.txt`, bootstrap from a clean checkout, and check both the deployed page and its linked assets. Update [WEB-ALPHA.md](qa/WEB-ALPHA.md) with actual results.
+
+## Signing and future releases
+
+The current app has an ad-hoc signature, not a Developer ID signature or Apple notarization. Describe it as experimental on the page and in the release. A supported public Mac release still needs Developer ID signing, notarization, and Gatekeeper testing.
+
+For a new asset release, update the tag in `web/content.mjs`, the HTML fallback links, `CatPackStore.remoteCatalogURL`, the bootstrap URL, pack-builder default, and catalog fixtures; regenerate the website catalog and run the checks. The download URL allowlist follows the app’s catalog URL. Keep previous release assets available for older apps.

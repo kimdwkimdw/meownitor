@@ -94,7 +94,7 @@ for sequence_dir in $sequence_dirs; do
       -resize 384x384 \
       "$WORK/$sequence-preview-$frame.png"
   done
-  magick -delay 12 \
+  magick -delay 12 -dispose Background \
     "$WORK/$sequence-preview-0.png" \
     "$WORK/$sequence-preview-1.png" \
     "$WORK/$sequence-preview-2.png" \

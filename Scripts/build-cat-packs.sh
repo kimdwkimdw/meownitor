@@ -4,10 +4,10 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 OUT="$ROOT/dist/cat-packs"
 REPOSITORY=${CAT_PACK_REPOSITORY:-kimdwkimdw/meownitor}
-TAG=${CAT_PACK_TAG:-cat-packs-v1}
+TAG=${CAT_PACK_TAG:-v0.3.0-alpha.1}
 
 if [ "$#" -eq 0 ]; then
-  echo "usage: $0 K01 [K02 ...]" >&2
+  echo "usage: $0 K04 [K05 ... U10]" >&2
   exit 2
 fi
 
@@ -19,6 +19,10 @@ separator=
 
 for cat_id in "$@"; do
   case "$cat_id" in
+    K01 | K02 | K03)
+      echo "$cat_id is bundled with the app" >&2
+      exit 2
+      ;;
     K[0-9][0-9] | U[0-9][0-9]) ;;
     *)
       echo "invalid cat id: $cat_id" >&2
@@ -41,15 +45,16 @@ for cat_id in "$@"; do
     echo "$cat_id has invalid strip dimensions: $dimensions" >&2
     exit 1
   }
-  raw_count=$(find "$ROOT/Resources/Cats/$cat_id/raw" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-  intermediate_count=$(find "$ROOT/Resources/Cats/$cat_id/intermediate" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-  chroma_count=$(find "$ROOT/Resources/Cats/$cat_id/qa" -maxdepth 1 -type f -name 'chroma-*.json' ! -name 'chroma-despill.json' | wc -l | tr -d ' ')
-  reflection_count=$(find "$ROOT/Resources/Cats/$cat_id/qa" -maxdepth 1 -type f -name 'reflection-*.json' ! -name 'reflection-neutralization.json' | wc -l | tr -d ' ')
-  [ "$raw_count" -eq 15 ] && [ "$intermediate_count" -eq 15 ] \
-    && [ "$chroma_count" -eq 15 ] && [ "$reflection_count" -eq 15 ] || {
-    echo "$cat_id has incomplete production evidence: raw=$raw_count intermediate=$intermediate_count chroma=$chroma_count reflection=$reflection_count" >&2
-    exit 1
-  }
+  for strip in "$source_dir"/*.webp; do
+    sequence=$(basename "$strip" .webp)
+    cat_root="$ROOT/Resources/Cats/$cat_id"
+    [ -d "$cat_root/raw/$sequence" ] && [ -d "$cat_root/intermediate/$sequence" ] \
+      && [ -s "$cat_root/qa/chroma-$sequence.json" ] \
+      && [ -s "$cat_root/qa/reflection-$sequence.json" ] || {
+      echo "$cat_id has incomplete production evidence for $sequence" >&2
+      exit 1
+    }
+  done
 
   stage="$OUT/staging/$cat_id/strips"
   mkdir -p "$stage"

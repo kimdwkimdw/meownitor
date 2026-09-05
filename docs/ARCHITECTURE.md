@@ -22,7 +22,7 @@ AppDelegate
 - `CatProfile`: 21개 고양이의 ID·한/영 이름·품종
 - `CatPackStore`: Release 카탈로그, 다운로드, SHA-256, ZIP 해제, 규격 검증, 설치·삭제
 
-Elsa는 앱 번들의 `Contents/Resources/ElsaHD/*.webp`에서 읽습니다. 소스 clone은 `bundled-assets-v1` Release를 bootstrap해 Elsa와 아이콘을 로컬 `Resources/`에 복원합니다. 추가 고양이는 `~/Library/Application Support/Meownitor/Cats/<ID>/strips`를 우선 사용하며, 개발 중에는 로컬 `Resources/Cats/<ID>/strips`가 마지막 fallback입니다.
+Elsa는 앱 번들의 `Contents/Resources/ElsaHD/*.webp`, K01–K03은 `Contents/Resources/Cats/<ID>/*.webp`에서 읽습니다. 소스 clone은 `v0.3.0-alpha.1` Release를 bootstrap해 기본 4종·아이콘·현지화·17종 카탈로그를 로컬 `Resources/`에 복원합니다. 나머지 17종은 `~/Library/Application Support/Meownitor/Cats/<ID>/strips`를 우선 사용하며, 개발 중에는 로컬 `Resources/Cats/<ID>/strips`가 마지막 fallback입니다.
 
 미설치 고양이가 이전 설정에 남아 있으면 `CatProfile.selected`가 Elsa로 복귀합니다. 설치는 임시 디렉터리에서 전부 검증한 뒤 ID별 디렉터리를 교체하므로 부분 다운로드를 런타임이 읽지 않습니다.
 
@@ -32,4 +32,4 @@ Elsa는 앱 번들의 `Contents/Resources/ElsaHD/*.webp`에서 읽습니다. 소
 
 ## 배포
 
-`Resources/`는 전부 Git ignore 대상입니다. `Scripts/bootstrap-bundled-assets.sh`가 별도 Release ZIP과 SHA-256을 검증한 뒤 로컬 자산을 복원하고, `Scripts/build-app.sh`가 Elsa WebP를 포함해 ad-hoc 서명합니다. 일반 사용자 배포 전에 Developer ID 서명과 notarization이 별도로 필요합니다.
+`Resources/`는 전부 Git ignore 대상입니다. `Scripts/bootstrap-bundled-assets.sh`가 별도 Release ZIP과 SHA-256을 검증한 뒤 로컬 자산을 복원하고, `Scripts/build-app.sh`가 기본 4종 WebP를 포함해 ad-hoc 서명합니다. 일반 사용자 배포 전에 Developer ID 서명과 notarization이 별도로 필요합니다.

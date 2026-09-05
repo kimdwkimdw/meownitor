@@ -93,8 +93,8 @@ final class SettingsController: NSWindowController, NSWindowDelegate {
     stack.addArrangedSubview(
       bodyLabel(
         language.text(
-          "엘사는 앱에 포함됩니다. 다른 고양이는 필요할 때만 내려받고 언제든 삭제할 수 있습니다.",
-          "Elsa is included. Download other cats only when you want them, and remove them anytime."
+          "엘사·호두·치즈·모찌는 앱에 포함됩니다. 다른 고양이는 필요할 때만 내려받고 언제든 삭제할 수 있습니다.",
+          "Elsa, Hodu, Cheese, and Mochi are included. Download other cats only when you want them."
         )
       )
     )
@@ -262,7 +262,7 @@ final class SettingsController: NSWindowController, NSWindowDelegate {
     let formatter = ByteCountFormatter()
     formatter.countStyle = .file
 
-    if cat.id == "elsa" {
+    if cat.isBundled {
       packStatus.stringValue = language.text(
         "앱에 기본 포함됨",
         "Included with the app"
@@ -304,7 +304,7 @@ final class SettingsController: NSWindowController, NSWindowDelegate {
   }
 
   @objc private func manageCatPack() {
-    guard let cat = catalogCat, cat.id != "elsa" else { return }
+    guard let cat = catalogCat, !cat.isBundled else { return }
     let store = CatPackStore.shared
     if store.isInstalled(cat) {
       do {

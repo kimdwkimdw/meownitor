@@ -1,22 +1,24 @@
-# 현재 검증 기록
+# 2026-08-05 검증 기록
 
-검증 시각: 2026-08-01 KST
+이 문서는 당시의 기록입니다. 최신 웹 알파 검증은 [WEB-ALPHA.md](WEB-ALPHA.md)를 확인하세요.
 
+검증 시각: 2026-08-05 KST
+
+- 기준 commit: `908cf76e599e`
 - `swift test`: 17 tests, 0 failures
 - release 앱 build, ad-hoc 서명과 strict codesign: 통과
-- 앱 번들: 13MB
-- Elsa 런타임 WebP: 15개, 각 `8778×1254`
-- 추가 고양이 번들 포함: 0개
-- K05 제작 증거: raw·intermediate·chroma·reflection·GIF·WebP 각 15세트
-- K05 WebP: 15개, 각 `8778×1254`, 7프레임 contact sheet 시각 QA 통과
-- K05 ZIP: `K05/strips/*.webp` 15개, 9,889,297 bytes
-- K05 SHA-256: `c44b06e7edaf42186a292e4cba085d6104d648e85da48bc561cfabf2b869d9b4`
-- 원격 catalog: K01~K05 5개, 중복 없음, K01~K04 값 불변
-- 원격 K05 재다운로드: size·SHA-256·파일 집합·strip 규격 재검증 통과
-- Git history: Codex 자산 checkpoint 삭제 후 `.git` 2.3GB → 88KB, 도달 가능 객체 0
-- `Resources/` 전체 Git ignore, bundled-assets ZIP 12MB와 local HTTP bootstrap 왕복 통과
-- 설정 UI: macOS 실제 창에서 상태·버튼·설명 잘림 없음
-- K05 앱 왕복: 다운로드 후 자동 선택·실제 미리보기·재실행 유지·삭제 후 Elsa 복귀 통과
-- 미완성 고양이: 다운로드와 미리보기 비활성화
+- 앱 번들: 73,211,904 bytes
+- 측정용 앱 ZIP: 72,081,897 bytes, 약 68.7MiB
+- 기본 포함 WebP: Elsa·K01·K02·K03 각 15개, 총 60개
+- 다른 고양이의 앱 번들 WebP: 0개
+- 각 WebP: `8778×1254`, 7프레임, visible pixel과 투명 모서리 검사 통과
+- 번들 교체 ZIP: 71,918,522 bytes, 파일 63개 중 WebP 60개
+- 번들 교체 ZIP SHA-256: `7a0627e0179a4cdff6c53e261d7a420b9e22bcdfbf30a74dcd0b416a2c6a4834`
+- 번들 교체 ZIP의 local HTTP 다운로드·checksum·bootstrap 왕복 통과
+- catalog 검증: 기본 포함 K01~K03 항목 무시, 중복 ID 거부, K04 설치·삭제 상태 검사 통과
+- 기본 포함 K01~K03의 팩 생성 차단
+- 전체 고양이 제작 자산: Elsa와 K01~K10·U01~U10의 15동작 및 시각 QA 완료
+- `/Applications/Meownitor.app`: 새 빌드 설치·strict codesign·실행 확인, 기본 WebP 60개
+- 기존 Application Support 다운로드 팩 20개: 설치 교체 후 그대로 보존
 
-K01~K05 팩 게시와 실제 원격 다운로드·삭제 검증은 끝났습니다. 나머지 15종 실사 애니메이션과 별도 범위인 Developer ID/notarization이 남아 있습니다.
+로컬 구현과 자산 검증은 완료됐습니다. 원격 `bundled-assets-v1` 교체, K04~K10·U01~U10의 17개 다운로드 catalog 게시, 원격 왕복·clean-clone·CI 검증은 아직 수행하지 않았습니다. Developer ID/notarization과 앱 버전 태그는 별도 범위입니다.

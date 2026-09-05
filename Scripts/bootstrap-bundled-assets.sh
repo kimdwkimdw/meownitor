@@ -2,7 +2,7 @@
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-BASE_URL=${MEOWNITOR_ASSET_URL:-https://github.com/kimdwkimdw/meownitor/releases/download/bundled-assets-v1}
+BASE_URL=${MEOWNITOR_ASSET_URL:-https://github.com/kimdwkimdw/meownitor/releases/download/v0.3.0-alpha.1}
 ARCHIVE_NAME=Meownitor-Bundled-Assets-v1.zip
 TEMP=$(mktemp -d "${TMPDIR:-/tmp}/meownitor-assets.XXXXXX")
 trap 'rm -rf "$TEMP"' EXIT
@@ -29,6 +29,13 @@ count=$(find "$source/ElsaHD/runtime" -maxdepth 1 -type f -name '*.webp' | wc -l
   echo "bundled asset archive has $count Elsa strips; expected 15" >&2
   exit 1
 }
+for cat_id in K01 K02 K03; do
+  count=$(find "$source/Cats/$cat_id/strips" -maxdepth 1 -type f -name '*.webp' | wc -l | tr -d ' ')
+  [ "$count" -eq 15 ] || {
+    echo "bundled asset archive has $count $cat_id strips; expected 15" >&2
+    exit 1
+  }
+done
 
 mkdir -p "$ROOT/Resources"
 ditto "$source" "$ROOT/Resources"

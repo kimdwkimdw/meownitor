@@ -2,6 +2,7 @@ import Foundation
 
 struct CatProfile: Equatable {
   static let defaultsKey = "selectedCat"
+  static let bundledIDs: Set<String> = ["elsa", "K01", "K02", "K03"]
 
   let id: String
   let nameKo: String
@@ -72,6 +73,10 @@ struct CatProfile: Equatable {
 
   var assetExtension: String {
     "webp"
+  }
+
+  var isBundled: Bool {
+    Self.bundledIDs.contains(id)
   }
 
   var assetSubdirectory: String {

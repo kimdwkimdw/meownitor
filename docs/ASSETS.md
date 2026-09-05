@@ -10,9 +10,9 @@
 
 전체 스프라이트의 이동·확대·회전만으로 만든 affine 모션은 최종 자산으로 허용하지 않습니다. 해당 동작의 눈꺼풀·눈·귀·머리·입·흉곽·앞발·꼬리 형태가 실제로 변해야 합니다.
 
-## Elsa
+## 기본 포함 고양이
 
-제작 원본 PNG와 raw/intermediate/QA는 로컬에 보존합니다. `Resources/` 전체는 Git에서 제외합니다. 설치 앱용 `Resources/ElsaHD/runtime/*.webp` 15개와 `.icns`·현지화는 별도 `Meownitor-Bundled-Assets-v1.zip` Release에만 포함합니다.
+제작 원본 PNG와 raw/intermediate/QA는 로컬에 보존합니다. `Resources/` 전체는 Git에서 제외합니다. 설치 앱용 Elsa와 K01–K03 WebP 각 15개, `.icns`·현지화·다운로드 카탈로그는 `v0.3.0-alpha.1` Release의 `Meownitor-Bundled-Assets-v1.zip`에 포함합니다. 예외적으로 웹에 필요한 축소 WebP 미리보기 43개만 `web/assets/`에 추적하며, 원본과 전체 동작은 넣지 않습니다.
 
 - WebP quality 95, alpha quality 100
 - 원본 68MB → 런타임 11MB
@@ -36,4 +36,4 @@ qa/reflection-<sequence>.json
 
 ZIP은 `<ID>/strips/*.webp`만 포함하며 macOS resource fork와 제작 원본은 제외합니다. 앱은 manifest의 SHA-256과 예상 파일 15개를 검증합니다.
 
-`Scripts/build-bundled-assets.sh`는 Elsa 런타임·앱 아이콘·현지화만 별도 ZIP으로 만들고, `Scripts/bootstrap-bundled-assets.sh`는 ZIP과 sidecar SHA-256을 확인합니다.
+`Scripts/build-bundled-assets.sh`는 기본 4종 런타임·앱 아이콘·현지화만 별도 ZIP으로 만들고, `Scripts/bootstrap-bundled-assets.sh`는 ZIP과 sidecar SHA-256을 확인합니다.
