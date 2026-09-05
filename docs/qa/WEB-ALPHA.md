@@ -12,7 +12,18 @@ Release: `v0.3.0-alpha.1` · 2026-09-05 KST
 
 ## Publication verification
 
-Release asset round-trip, clean-checkout bootstrap, GitHub Actions, and served Pages content are pending until publication. Add measured results here after those checks finish.
+- [Public prerelease](https://github.com/kimdwkimdw/meownitor/releases/tag/v0.3.0-alpha.1) published at 2026-09-05 20:05:48 KST, targeting `2ebeded2e9d6103c05ae43dcad0e949b1df8859c`.
+- Exactly 23 curated assets, 419,653,464 bytes in total. GitHub’s uploaded sizes and SHA-256 digests match local files. All 23 files were downloaded again; `node Scripts/check-release.mjs` passed every checksum, archive member, embedded catalog, and website-content comparison.
+- All 23 public download URLs return HTTP 200 without authentication.
+- Clean checkout of the release tag restored 60 bundled strips, the icon, localized metadata, and the 17-pack catalog using the public bootstrap URL. Website checks passed with no source changes.
+- `MEOWNITOR_RELEASE_SMOKE=1 swift test --filter CatProfileTests.testPublishedCatInstallAndRemoval`: passed in 2.4 seconds. The app fetched its public 17-pack catalog, downloaded K04, validated and installed all 15 strips in temporary storage, and removed it successfully.
+- [Pages workflow](https://github.com/kimdwkimdw/meownitor/actions/runs/33962424958): passed. The 48 served page/module/style/image files match local and release bytes. Public URL: [Meownitor](https://kimdwkimdw.github.io/meownitor/).
+- Served `index.html` SHA-256: `fcdbbc1353998c1281f4e72ce63425ea5dc383e0c37d1bf48eeac5b31780d799`.
+- [Native Build workflow](https://github.com/kimdwkimdw/meownitor/actions/runs/33962424953): passed in 3m50s, including public bootstrap, the Swift suite, and app packaging.
+- [Release workflow](https://github.com/kimdwkimdw/meownitor/actions/runs/33962405342): passed in 4m11s, including a clean universal build and strict codesign verification. Published artifacts were preserved.
+- The default CI suite discovers 18 tests: 17 pass and the opt-in public installation test is skipped. That installation test was run separately and passed as recorded above.
+
+The release commit was made without a Git signature because local GPG required interactive passphrase entry. Repository and global signing settings were preserved. This is separate from the app’s verified ad-hoc code signature.
 
 ## Limits
 
