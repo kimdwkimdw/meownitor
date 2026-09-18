@@ -28,3 +28,14 @@ The release commit was made without a Git signature because local GPG required i
 ## Limits
 
 The Mac app has no Developer ID signature or notarization. Native app UI is Korean/English; the website adds Japanese. Intel compilation does not establish runtime testing on Intel hardware. Browser interaction/visual QA and a full native UI installation cycle have not been performed in this release task. The local installed app and existing user cat downloads are left untouched.
+
+## App update v0.3.0-alpha.2 · 2026-09-19 KST
+
+- Source: `058329cbaed7d9cd29017e9d06a7664a0cbd3f7f`, bundle build 11. Adds persistent dismissal of the Input Monitoring notice; regular dismissal remains temporary.
+- `swift test`: 18 passed, 1 opt-in network test skipped. The skipped public cat installation/removal test was run separately with `MEOWNITOR_RELEASE_SMOKE=1` and passed.
+- `node Scripts/check-web.mjs`, universal `x86_64 arm64` build, and strict codesign validation passed. The unchanged catalog and artwork still use alpha.1.
+- Installed the new app after backing up the old app. Native UI exposed the Korean “다시 보지 않기” button; clicking it saved `hideInputMonitoringNotice = 1`, which remained set after process relaunch. Unit coverage verifies that ordinary dismissal does not suppress future notices and that suppression survives a new defaults/controller instance.
+- Downloaded the draft and public ZIP independently: checksums passed, draft bytes matched local bytes, public app signature passed, and the public executable matched the installed executable.
+- Clean source archive bootstrap passed. The deployed website serves alpha.2 app/checksum links and preserves alpha.1 artwork links.
+- Git commit signing used the existing one-command unsigned fallback because GPG failed with `No such file or directory`; global signing settings were unchanged. The app remains ad-hoc signed and unnotarized. Intel runtime testing was not performed.
+- [Build](https://github.com/kimdwkimdw/meownitor/actions/runs/35402878234), [Release](https://github.com/kimdwkimdw/meownitor/actions/runs/35402872072), and [Pages](https://github.com/kimdwkimdw/meownitor/actions/runs/35402878237) workflows all passed for the release commit.
