@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   private var statusMenuItem: NSMenuItem?
   private var loginMenuItem: NSMenuItem?
   private var settingsController: SettingsController?
+  private var inputMonitoringSetupController: InputMonitoringSetupController?
 
   private var language: AppLanguage {
     .selected
@@ -264,7 +265,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       settingsTitle: language.text("설정 열기", "Open Settings"),
       language: language,
       cat: .selected,
-      onOpenSettings: { [weak self] in self?.showSettings() }
+      onOpenSettings: { [weak self] in self?.openInputMonitoringSettings() }
     )
   }
 
@@ -273,6 +274,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     overlay.dismiss()
     settingsController?.close()
     settingsController = nil
+    inputMonitoringSetupController?.close()
+    inputMonitoringSetupController = nil
     configureMenu()
     showSettings()
   }
@@ -284,15 +287,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   @objc private func openInputMonitoringSettings() {
-    ExternalKeyboardMonitor.requestAccess()
-    guard
-      let url = URL(
-        string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent"
-      )
-    else {
-      return
+    if inputMonitoringSetupController == nil {
+      inputMonitoringSetupController = InputMonitoringSetupController(language: language)
     }
-    NSWorkspace.shared.open(url)
+    inputMonitoringSetupController?.show()
   }
 
   @objc private func toggleLaunchAtLogin() {

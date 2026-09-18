@@ -1,4 +1,4 @@
-export const appReleaseTag = 'v0.3.0-alpha.2';
+export const appReleaseTag = 'v0.3.0-alpha.3';
 export const releaseTag = 'v0.3.0-alpha.1';
 export const repository = 'https://github.com/kimdwkimdw/meownitor';
 export const downloadBase = `${repository}/releases/download/${releaseTag}`;

@@ -99,10 +99,6 @@ final class ExternalKeyboardMonitor {
       return .unknown
     }
   }
-
-  static func requestAccess() {
-    _ = IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
-  }
 }
 
 struct SystemSnapshotProvider {

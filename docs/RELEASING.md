@@ -1,6 +1,6 @@
 # Releases and GitHub Pages
 
-The artwork catalog uses `v0.3.0-alpha.1`; the current Mac app uses `v0.3.0-alpha.2` (see app-only updates below). Release assets are immutable: the older `bundled-assets-v1` and `cat-packs-v1` releases remain unchanged for older clients. The `v1` in each ZIP filename is its asset format version.
+The artwork catalog uses `v0.3.0-alpha.1`; the current Mac app uses `v0.3.0-alpha.3` (see app-only updates below). Release assets are immutable: the older `bundled-assets-v1` and `cat-packs-v1` releases remain unchanged for older clients. The `v1` in each ZIP filename is its asset format version.
 
 ## Prepare the curated artifacts
 
@@ -54,3 +54,5 @@ For a new asset release, update the tag in `web/content.mjs`, the HTML fallback 
 ## Homebrew
 
 After verifying a public app release, update `Casks/meownitor.rb` in [kimdwkimdw/homebrew-tap](https://github.com/kimdwkimdw/homebrew-tap) with the release version and the universal ZIP SHA-256. Run `brew style --cask kimdwkimdw/tap/meownitor` and `brew audit --cask kimdwkimdw/tap/meownitor`, then push and verify the tap installation/removal CI. Keep the app ZIP immutable; do not bypass quarantine or notarization checks in the cask.
+
+`v0.3.0-alpha.3` (bundle build 12) adds a floating drag-and-drop Input Monitoring guide. Publish and verify it using the same app-only procedure, then update the Homebrew cask version and SHA-256.
