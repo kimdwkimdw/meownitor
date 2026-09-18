@@ -16,6 +16,15 @@ A small cat. A gentler workday. A native macOS menu bar companion that reminds y
 
 The website supports **English, Korean, and Japanese**. The native app currently supports **English and Korean**.
 
+## Install with Homebrew
+
+```sh
+brew install --cask kimdwkimdw/tap/meownitor
+open /Applications/Meownitor.app
+```
+
+Update with `brew upgrade --cask meownitor`. For an identical manually installed copy, use `brew install --cask --adopt kimdwkimdw/tap/meownitor`. The [Homebrew tap](https://github.com/kimdwkimdw/homebrew-tap) supports Apple Silicon and Intel on macOS 13+. Input Monitoring is optional; the alpha signing limitations below still apply.
+
 ## Download only what you want
 
 The current app is `v0.3.0-alpha.2`. Unchanged full-size artwork assets are distributed through the [v0.3.0-alpha.1 release](https://github.com/kimdwkimdw/meownitor/releases/tag/v0.3.0-alpha.1), outside Git history.

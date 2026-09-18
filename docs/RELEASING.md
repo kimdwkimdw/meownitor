@@ -50,3 +50,7 @@ For a new asset release, update the tag in `web/content.mjs`, the HTML fallback 
 ## App-only updates
 
 `v0.3.0-alpha.2` is an app-only update (bundle build 11). Publish the universal app ZIP and its `SHA256SUMS.txt`; the unchanged artwork and catalog remain at `v0.3.0-alpha.1`. `web/content.mjs` tracks `appReleaseTag` separately from the asset `releaseTag`. Update the app download fallback and README together. Use the same draft, exact-commit, public-download verification, and main fast-forward procedure above. The 23-file `check-release.mjs` gate applies to full asset releases, not app-only updates.
+
+## Homebrew
+
+After verifying a public app release, update `Casks/meownitor.rb` in [kimdwkimdw/homebrew-tap](https://github.com/kimdwkimdw/homebrew-tap) with the release version and the universal ZIP SHA-256. Run `brew style --cask kimdwkimdw/tap/meownitor` and `brew audit --cask kimdwkimdw/tap/meownitor`, then push and verify the tap installation/removal CI. Keep the app ZIP immutable; do not bypass quarantine or notarization checks in the cask.
