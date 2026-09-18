@@ -39,3 +39,12 @@ The Mac app has no Developer ID signature or notarization. Native app UI is Kore
 - Clean source archive bootstrap passed. The deployed website serves alpha.2 app/checksum links and preserves alpha.1 artwork links.
 - Git commit signing used the existing one-command unsigned fallback because GPG failed with `No such file or directory`; global signing settings were unchanged. The app remains ad-hoc signed and unnotarized. Intel runtime testing was not performed.
 - [Build](https://github.com/kimdwkimdw/meownitor/actions/runs/35402878234), [Release](https://github.com/kimdwkimdw/meownitor/actions/runs/35402872072), and [Pages](https://github.com/kimdwkimdw/meownitor/actions/runs/35402878237) workflows all passed for the release commit.
+
+## App update v0.3.0-alpha.3 · 2026-09-19 KST
+
+- Source: `21d16d5`, bundle build 12. Input Monitoring opens a floating guide alongside System Settings; the drag item exports the running app's file URL. Finder fallback selects `/Applications/Meownitor.app`.
+- Focused Swift suite: 15 passed, 1 opt-in network test skipped; unchanged sprite tests are left to full CI. New coverage round-trips the app file URL, including Unicode and spaces, through an isolated pasteboard and checks drag image bounds and inactive-window clicks.
+- Korean and English native guide layouts were inspected on the installed app; neither clipped its instructions or controls. The user's Korean setting was restored. End-to-end permission approval is not claimed: the guide still reported waiting for permission, and macOS authentication must be completed by the user.
+- Universal build and strict signature verification passed. Independently downloaded draft/public ZIP checksums passed and matched the local package.
+- Homebrew style and audit passed; actual upgrade from alpha.2 to alpha.3 succeeded. The installed executable matches the release build, and the persistent notice-dismissal preference remains enabled.
+- Full [Build CI](https://github.com/kimdwkimdw/meownitor/actions/runs/35405715136) passed: 20 tests discovered, 19 passed, 1 opt-in network test skipped. [Release CI](https://github.com/kimdwkimdw/meownitor/actions/runs/35405710933), [Pages](https://github.com/kimdwkimdw/meownitor/actions/runs/35405715141), and [Homebrew install/uninstall CI](https://github.com/kimdwkimdw/homebrew-tap/actions/runs/35405725424) all passed. Clean release-source bootstrap also passed.
