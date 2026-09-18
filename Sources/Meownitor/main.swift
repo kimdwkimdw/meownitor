@@ -39,6 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     if initialSnapshot.macKind == .portable,
       initialSnapshot.keyboardAccessStatus != .granted,
+      overlay.shouldShowPermissionNotice,
       !CommandLine.arguments.contains("--preview"),
       !CommandLine.arguments.contains("--small-preview"),
       !CommandLine.arguments.contains("--settings-preview")

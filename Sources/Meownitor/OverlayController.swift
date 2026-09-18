@@ -122,6 +122,16 @@ final class SpriteView: NSView {
 }
 
 final class OverlayController {
+  private let defaults: UserDefaults
+
+  init(defaults: UserDefaults = .standard) {
+    self.defaults = defaults
+  }
+
+  var shouldShowPermissionNotice: Bool {
+    !defaults.bool(forKey: "hideInputMonitoringNotice")
+  }
+
   private var panel: NSPanel?
   private var snoozeHandler: ((TimeInterval) -> Void)?
   private var settingsHandler: (() -> Void)?
@@ -233,7 +243,7 @@ final class OverlayController {
     cat: CatProfile,
     onOpenSettings: @escaping () -> Void
   ) {
-    guard let screen = Self.targetScreen else { return }
+    guard shouldShowPermissionNotice, let screen = Self.targetScreen else { return }
     dismiss()
     settingsHandler = onOpenSettings
 
@@ -272,8 +282,17 @@ final class OverlayController {
       action: #selector(openSettings)
     )
     settings.bezelStyle = .rounded
-    settings.frame = CGRect(x: 168, y: 36, width: 154, height: 32)
+    settings.frame = CGRect(x: 168, y: 44, width: 238, height: 32)
     content.addSubview(settings)
+
+    let dontShowAgain = NSButton(
+      title: language.text("다시 보지 않기", "Don’t Show Again"),
+      target: self,
+      action: #selector(hidePermissionNotice)
+    )
+    dontShowAgain.bezelStyle = .rounded
+    dontShowAgain.frame = CGRect(x: 168, y: 10, width: 238, height: 32)
+    content.addSubview(dontShowAgain)
 
     let close = closeButton(label: language.text("닫기", "Close"))
     close.setFrameOrigin(
@@ -322,6 +341,11 @@ final class OverlayController {
     panel?.contentView = content
     beginEscapeHandling(messageLabel: label, language: language)
     panel?.orderFrontRegardless()
+  }
+
+  @objc func hidePermissionNotice() {
+    defaults.set(true, forKey: "hideInputMonitoringNotice")
+    dismiss()
   }
 
   @objc func dismiss() {

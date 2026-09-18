@@ -1,4 +1,4 @@
-import { translations, ui, resolveLanguage, repository, releaseTag, downloadBase } from './content.mjs';
+import { translations, ui, resolveLanguage, repository, appReleaseTag, downloadBase } from './content.mjs';
 import { catalog } from './cats.mjs';
 
 const textNodes = [...document.querySelectorAll('[data-i18n]')];
@@ -110,7 +110,8 @@ document.querySelectorAll('[data-lang]').forEach(button => button.addEventListen
   history.replaceState(null, '', url);
 }));
 document.querySelectorAll('[data-release-asset]').forEach(link => { link.href = `${downloadBase}/${link.dataset.releaseAsset}`; });
-document.querySelectorAll('[data-release-link]').forEach(link => { link.href = `${repository}/releases/tag/${releaseTag}`; });
+document.querySelectorAll('[data-app-release-asset]').forEach(link => { link.href = `${repository}/releases/download/${appReleaseTag}/${link.dataset.appReleaseAsset}`; });
+document.querySelectorAll('[data-app-release-link]').forEach(link => { link.href = `${repository}/releases/tag/${appReleaseTag}`; });
 motionToggle.addEventListener('click', () => { paused = !paused; updateMotion(); });
 reducedMotion.addEventListener('change', updateMotion);
 setLanguage(language);

@@ -1,6 +1,6 @@
 # Releases and GitHub Pages
 
-The website and Mac alpha use `v0.3.0-alpha.1`. Release assets are immutable for this alpha: the older `bundled-assets-v1` and `cat-packs-v1` releases remain unchanged for older clients. The `v1` in each ZIP filename is its asset format version.
+The artwork catalog uses `v0.3.0-alpha.1`; the current Mac app uses `v0.3.0-alpha.2` (see app-only updates below). Release assets are immutable: the older `bundled-assets-v1` and `cat-packs-v1` releases remain unchanged for older clients. The `v1` in each ZIP filename is its asset format version.
 
 ## Prepare the curated artifacts
 
@@ -46,3 +46,7 @@ After publishing, independently download the public assets, verify `SHA256SUMS.t
 The current app has an ad-hoc signature, not a Developer ID signature or Apple notarization. Describe it as experimental on the page and in the release. A supported public Mac release still needs Developer ID signing, notarization, and Gatekeeper testing.
 
 For a new asset release, update the tag in `web/content.mjs`, the HTML fallback links, `CatPackStore.remoteCatalogURL`, the bootstrap URL, pack-builder default, and catalog fixtures; regenerate the website catalog and run the checks. The download URL allowlist follows the app’s catalog URL. Keep previous release assets available for older apps.
+
+## App-only updates
+
+`v0.3.0-alpha.2` is an app-only update (bundle build 11). Publish the universal app ZIP and its `SHA256SUMS.txt`; the unchanged artwork and catalog remain at `v0.3.0-alpha.1`. `web/content.mjs` tracks `appReleaseTag` separately from the asset `releaseTag`. Update the app download fallback and README together. Use the same draft, exact-commit, public-download verification, and main fast-forward procedure above. The 23-file `check-release.mjs` gate applies to full asset releases, not app-only updates.

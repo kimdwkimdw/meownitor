@@ -4,20 +4,21 @@ A small cat. A gentler workday. A native macOS menu bar companion that reminds y
 
 **[English](https://kimdwkimdw.github.io/meownitor/?lang=en) · [한국어](https://kimdwkimdw.github.io/meownitor/?lang=ko) · [日本語](https://kimdwkimdw.github.io/meownitor/?lang=ja)**
 
-[Visit the website](https://kimdwkimdw.github.io/meownitor/) · [Download the alpha](https://github.com/kimdwkimdw/meownitor/releases/tag/v0.3.0-alpha.1) · [Report a problem](https://github.com/kimdwkimdw/meownitor/issues)
+[Visit the website](https://kimdwkimdw.github.io/meownitor/) · [Download the alpha](https://github.com/kimdwkimdw/meownitor/releases/tag/v0.3.0-alpha.2) · [Report a problem](https://github.com/kimdwkimdw/meownitor/issues)
 
 ## What it does
 
 - **MacBook:** a cat appears after 25 active minutes using the built-in screen and keyboard. Connecting an external display or using an external keyboard resets the timer.
 - **iMac:** a small break reminder every 30–60 minutes. Other desktop Macs do not show reminders.
 - Snooze for 30 minutes, one hour, or two; press Escape twice to dismiss. Cat overlays stay on the built-in display.
+- Choose **Don’t Show Again** on the Input Monitoring notice to hide it permanently, including after relaunch. Settings still shows the current permission status.
 - No camera, account, or saved keystrokes. Optional Input Monitoring permission distinguishes external keyboards; without it, display detection still works. Asset downloads connect to GitHub.
 
 The website supports **English, Korean, and Japanese**. The native app currently supports **English and Korean**.
 
 ## Download only what you want
 
-All full-size runtime assets are distributed through the [v0.3.0-alpha.1 release](https://github.com/kimdwkimdw/meownitor/releases/tag/v0.3.0-alpha.1), outside Git history.
+The current app is `v0.3.0-alpha.2`. Unchanged full-size artwork assets are distributed through the [v0.3.0-alpha.1 release](https://github.com/kimdwkimdw/meownitor/releases/tag/v0.3.0-alpha.1), outside Git history.
 
 | Download | Contents |
 | --- | --- |

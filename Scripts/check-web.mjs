@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import { readFileSync, statSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
-import { translations, ui, resolveLanguage, releaseTag, downloadBase } from '../web/content.mjs';
+import { translations, ui, resolveLanguage, releaseTag, appReleaseTag, downloadBase } from '../web/content.mjs';
 import { catalog } from '../web/cats.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const web = resolve(root, 'web');
 const html = readFileSync(resolve(web, 'index.html'), 'utf8');
+assert.ok(html.includes(`releases/download/${appReleaseTag}/Meownitor-macOS-universal.zip`));
 const keys = [...html.matchAll(/data-i18n(?:-aria)?="([^"]+)"/g)].map(match => match[1]);
 for (const language of ['ko', 'ja']) {
   assert.deepEqual(Object.keys(translations[language]).sort(), [...new Set(keys)].sort(), `${language}: translation coverage`);
