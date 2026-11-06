@@ -35,5 +35,6 @@ if [ -f "$ROOT/Resources/CatPacks/cat-packs.json" ]; then
   cp "$ROOT/Resources/CatPacks/cat-packs.json" "$APP/Contents/Resources/"
 fi
 codesign --force --deep --sign - "$APP"
+codesign --verify --deep --strict "$APP"
 
 echo "$APP"

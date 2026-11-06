@@ -4,12 +4,27 @@ enum MacKind {
   case portable
   case iMac
   case desktop
+
+  static func detect(
+    modelIdentifier: String, hasInternalBattery: Bool, hasBuiltInDisplay: Bool
+  ) -> MacKind {
+    // Recent Macs use generic Mac identifiers, regardless of their enclosure.
+    if hasInternalBattery || modelIdentifier.hasPrefix("MacBook") { return .portable }
+    if hasBuiltInDisplay || modelIdentifier.hasPrefix("iMac") { return .iMac }
+    return .desktop
+  }
 }
 
 enum KeyboardAccessStatus {
   case granted
+  case waitingForInput
+  case unavailable
   case denied
   case unknown
+
+  var needsPermission: Bool {
+    self == .denied || self == .unknown
+  }
 }
 
 struct MonitorSnapshot {

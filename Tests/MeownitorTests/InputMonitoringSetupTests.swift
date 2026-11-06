@@ -4,6 +4,23 @@ import XCTest
 @testable import Meownitor
 
 final class InputMonitoringSetupTests: XCTestCase {
+  func testOnlyMissingPermissionRequiresPermissionOnboarding() {
+    XCTAssertTrue(KeyboardAccessStatus.unknown.needsPermission)
+    XCTAssertTrue(KeyboardAccessStatus.denied.needsPermission)
+    XCTAssertFalse(KeyboardAccessStatus.waitingForInput.needsPermission)
+    XCTAssertFalse(KeyboardAccessStatus.unavailable.needsPermission)
+    XCTAssertFalse(KeyboardAccessStatus.granted.needsPermission)
+  }
+
+  func testOnlyVerifiedInputHasASuccessTitle() {
+    for language in [AppLanguage.korean, .english] {
+      XCTAssertTrue(KeyboardAccessStatus.granted.title(language: language).hasPrefix("✓"))
+      for status in [KeyboardAccessStatus.unknown, .denied, .waitingForInput, .unavailable] {
+        XCTAssertFalse(status.title(language: language).contains("✓"))
+      }
+    }
+  }
+
   func testDragExportsAppFileURLRatherThanIconImage() throws {
     let appURL = URL(fileURLWithPath: "/Applications/목펴라냥 Test.app", isDirectory: true)
     let icon = AppDragIcon(appURL: appURL, language: .korean)

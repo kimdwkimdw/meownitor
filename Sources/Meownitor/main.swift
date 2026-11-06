@@ -4,6 +4,7 @@ import ServiceManagement
 final class AppDelegate: NSObject, NSApplicationDelegate {
   private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
   private let overlay = OverlayController()
+  private let keyboardMonitor = ExternalKeyboardMonitor()
   private var engine: MonitoringEngine?
   private var statusMenuItem: NSMenuItem?
   private var loginMenuItem: NSMenuItem?
@@ -19,14 +20,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     configureMenu()
     enableLaunchAtLogin()
 
-    let keyboardMonitor = ExternalKeyboardMonitor()
     let provider = SystemSnapshotProvider(keyboardMonitor: keyboardMonitor)
     let initialSnapshot = provider.snapshot()
     engine = MonitoringEngine(
       provider: provider,
       onAction: { [weak self] action in self?.handle(action) },
-      onStatus: { [weak self] snapshot, activeSeconds in
-        self?.updateStatus(snapshot, activeSeconds: activeSeconds)
+      onStatus: { [weak self] snapshot, activeSeconds, snoozedUntil in
+        self?.updateStatus(snapshot, activeSeconds: activeSeconds, snoozedUntil: snoozedUntil)
       }
     )
     if let snoozedUntil = UserDefaults.standard.object(forKey: "snoozedUntil") as? Date,
@@ -39,7 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     engine?.start()
 
     if initialSnapshot.macKind == .portable,
-      initialSnapshot.keyboardAccessStatus != .granted,
+      initialSnapshot.keyboardAccessStatus.needsPermission,
       overlay.shouldShowPermissionNotice,
       !CommandLine.arguments.contains("--preview"),
       !CommandLine.arguments.contains("--small-preview"),
@@ -164,41 +164,68 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
   }
 
-  private func updateStatus(_ snapshot: MonitorSnapshot, activeSeconds: TimeInterval) {
-    let title: String
+  private func updateStatus(
+    _ snapshot: MonitorSnapshot, activeSeconds: TimeInterval, snoozedUntil: Date?
+  ) {
+    let defaults = UserDefaults.standard
+    if defaults.object(forKey: "snoozedUntil") as? Date != snoozedUntil {
+      defaults.set(snoozedUntil, forKey: "snoozedUntil")
+    }
+    statusMenuItem?.title = Self.statusTitle(
+      snapshot, activeSeconds: activeSeconds, snoozedUntil: snoozedUntil, language: language
+    )
+  }
+
+  static func statusTitle(
+    _ snapshot: MonitorSnapshot, activeSeconds: TimeInterval, snoozedUntil: Date?,
+    language: AppLanguage
+  ) -> String {
     if snapshot.macKind == .iMac {
-      title = language.text(
+      return language.text(
         "iMac · 휴식 알림만 사용",
         "iMac · Break reminders only"
       )
     } else if snapshot.macKind == .desktop {
-      title = language.text(
+      return language.text(
         "이 Mac에서는 자세 알림 사용 안 함",
         "Posture alerts unavailable on this Mac"
       )
     } else if snapshot.hasExternalDisplay {
-      title = language.text(
+      return language.text(
         "외장 모니터 사용 중 · 알림 일시 정지",
         "External display in use · Alerts paused"
       )
-    } else if snapshot.keyboardAccessStatus != .granted {
-      title = language.text(
-        "키보드 감지 꺼짐 · 모니터만 확인 중",
-        "Keyboard detection off · Display only"
-      )
     } else if snapshot.isUsingExternalKeyboard {
-      title = language.text(
+      return language.text(
         "외장 키보드 사용 중 · 알림 일시 정지",
         "External keyboard in use · Alerts paused"
       )
-    } else {
-      let minutes = Int(activeSeconds / 60)
+    }
+
+    let title: String
+    if let snoozedUntil, snoozedUntil > snapshot.now {
+      let minutes = Int(ceil(snoozedUntil.timeIntervalSince(snapshot.now) / 60))
+      title = language.text("알림 미루기 · \(minutes)분 남음", "Alerts snoozed · \(minutes) min left")
+    } else if snapshot.idleSeconds > 60 {
       title = language.text(
-        "MacBook 사용 \(minutes)/25분",
-        "MacBook use: \(minutes)/25 min"
+        "입력 대기 · 누적 \(Int(activeSeconds / 60))/25분",
+        "Idle · \(Int(activeSeconds / 60))/25 min accumulated")
+    } else {
+      title = language.text(
+        "MacBook 사용 \(Int(activeSeconds / 60))/25분",
+        "MacBook use: \(Int(activeSeconds / 60))/25 min"
       )
     }
-    statusMenuItem?.title = title
+    switch snapshot.keyboardAccessStatus {
+    case .granted:
+      return title
+    case .waitingForInput:
+      return title + language.text(" · 키보드 확인 대기", " · Keyboard verification pending")
+    case .unavailable:
+      return title + language.text(" · 키보드 감지 오류", " · Keyboard detection error")
+    case .denied, .unknown:
+      return title + language.text(" · 키보드 감지 꺼짐", " · Keyboard detection off")
+    }
   }
 
   private func enableLaunchAtLogin() {
@@ -242,6 +269,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     if settingsController == nil {
       settingsController = SettingsController(
         language: language,
+        keyboardMonitor: keyboardMonitor,
         onPreview: { [weak self] in self?.showPreview() },
         onOpenInputSettings: { [weak self] in self?.openInputMonitoringSettings() },
         onLanguageChanged: { [weak self] selection in
@@ -288,7 +316,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc private func openInputMonitoringSettings() {
     if inputMonitoringSetupController == nil {
-      inputMonitoringSetupController = InputMonitoringSetupController(language: language)
+      inputMonitoringSetupController = InputMonitoringSetupController(
+        language: language, keyboardMonitor: keyboardMonitor
+      )
     }
     inputMonitoringSetupController?.show()
   }

@@ -4,15 +4,19 @@ import XCTest
 @testable import Meownitor
 
 final class MonitorPolicyTests: XCTestCase {
-  func testPortableWarningNeeds25ActiveMinutesWithoutExternalGear() {
+  func testGenericMacBookWarningNeeds25ActiveMinutesWithoutExternalGear() {
     var configuration = MonitorPolicy.Configuration()
     configuration.postureWarningAfter = 25 * 60
     var policy = MonitorPolicy(configuration: configuration)
     let start = Date(timeIntervalSince1970: 0)
+    let kind = MacKind.detect(
+      modelIdentifier: "Mac17,3", hasInternalBattery: true, hasBuiltInDisplay: true
+    )
 
-    XCTAssertEqual(policy.evaluate(snapshot(at: start)), .none)
+    XCTAssertEqual(policy.evaluate(snapshot(at: start, kind: kind)), .none)
     for second in stride(from: 5, through: 25 * 60, by: 5) {
-      let action = policy.evaluate(snapshot(at: start.addingTimeInterval(TimeInterval(second))))
+      let action = policy.evaluate(
+        snapshot(at: start.addingTimeInterval(TimeInterval(second)), kind: kind))
       if second < 25 * 60 {
         XCTAssertEqual(action, .none)
       } else {

@@ -2,15 +2,32 @@ import AppKit
 import CoreGraphics
 import Foundation
 import IOKit.hid
+import IOKit.ps
 
 final class ExternalKeyboardMonitor {
   private let manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
   private var lastEvent: (date: Date, external: Bool)?
   private var isOpen = false
+  private let checkAccess: () -> KeyboardAccessStatus
+  private let openManager: (IOHIDManager) -> IOReturn
+  private let closeManager: (IOHIDManager) -> IOReturn
   private(set) var accessStatus: KeyboardAccessStatus
 
-  init() {
-    accessStatus = Self.currentAccessStatus
+  init(
+    checkAccess: @escaping () -> KeyboardAccessStatus = {
+      ExternalKeyboardMonitor.currentAccessStatus
+    },
+    openManager: @escaping (IOHIDManager) -> IOReturn = {
+      IOHIDManagerOpen($0, IOOptionBits(kIOHIDOptionsTypeNone))
+    },
+    closeManager: @escaping (IOHIDManager) -> IOReturn = {
+      IOHIDManagerClose($0, IOOptionBits(kIOHIDOptionsTypeNone))
+    }
+  ) {
+    self.checkAccess = checkAccess
+    self.openManager = openManager
+    self.closeManager = closeManager
+    accessStatus = .unknown
 
     let matching: [String: Any] = [
       kIOHIDDeviceUsagePageKey: kHIDPage_GenericDesktop,
@@ -28,37 +45,58 @@ final class ExternalKeyboardMonitor {
       },
       Unmanaged.passUnretained(self).toOpaque()
     )
-    IOHIDManagerScheduleWithRunLoop(manager, CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue)
+    IOHIDManagerScheduleWithRunLoop(manager, CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue)
     refreshAccess()
   }
 
   deinit {
     IOHIDManagerUnscheduleFromRunLoop(
-      manager, CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue)
+      manager, CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue)
     if isOpen {
-      IOHIDManagerClose(manager, IOOptionBits(kIOHIDOptionsTypeNone))
+      _ = closeManager(manager)
     }
   }
 
   var isUsingExternalKeyboard: Bool {
-    guard let lastEvent, Date().timeIntervalSince(lastEvent.date) < 10 * 60 else {
+    guard accessStatus == .granted, isOpen,
+      let lastEvent, Date().timeIntervalSince(lastEvent.date) < 10 * 60
+    else {
       return false
     }
     return lastEvent.external
   }
 
   func refreshAccess() {
-    accessStatus = Self.currentAccessStatus
-    if accessStatus == .granted, !isOpen {
-      isOpen =
-        IOHIDManagerOpen(
-          manager,
-          IOOptionBits(kIOHIDOptionsTypeNone)
-        ) == kIOReturnSuccess
-    } else if accessStatus != .granted, isOpen {
-      IOHIDManagerClose(manager, IOOptionBits(kIOHIDOptionsTypeNone))
+    let permission = checkAccess()
+    guard permission == .granted else {
+      if isOpen { _ = closeManager(manager) }
       isOpen = false
+      lastEvent = nil
+      accessStatus = permission
+      return
     }
+    if !isOpen {
+      isOpen = openManager(manager) == kIOReturnSuccess
+      guard isOpen else {
+        // A failed manager open can leave individual devices open.
+        _ = closeManager(manager)
+        lastEvent = nil
+        accessStatus = .unavailable
+        return
+      }
+    }
+    accessStatus = lastEvent == nil ? .waitingForInput : .granted
+  }
+
+  func requestAccess() {
+    _ = IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
+    refreshAccess()
+  }
+
+  func recordKeyDown(isExternal: Bool, at date: Date = Date()) {
+    guard isOpen, checkAccess() == .granted else { return }
+    lastEvent = (date, isExternal)
+    accessStatus = .granted
   }
 
   private func record(_ value: IOHIDValue) {
@@ -69,7 +107,7 @@ final class ExternalKeyboardMonitor {
       return
     }
     let device = IOHIDElementGetDevice(element)
-    lastEvent = (Date(), !Self.isBuiltIn(device))
+    recordKeyDown(isExternal: !Self.isBuiltIn(device))
   }
 
   private static func isBuiltIn(_ device: IOHIDDevice) -> Bool {
@@ -89,10 +127,18 @@ final class ExternalKeyboardMonitor {
     IOHIDDeviceGetProperty(device, key as CFString) as? String ?? ""
   }
 
-  static var currentAccessStatus: KeyboardAccessStatus {
-    switch IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) {
+  private static var currentAccessStatus: KeyboardAccessStatus {
+    permissionStatus(
+      hidAccess: IOHIDCheckAccess(kIOHIDRequestTypeListenEvent),
+      canListen: CGPreflightListenEventAccess()
+    )
+  }
+
+  static func permissionStatus(hidAccess: IOHIDAccessType, canListen: Bool) -> KeyboardAccessStatus
+  {
+    switch hidAccess {
     case kIOHIDAccessTypeGranted:
-      return .granted
+      return canListen ? .granted : .denied
     case kIOHIDAccessTypeDenied:
       return .denied
     default:
@@ -129,22 +175,39 @@ struct SystemSnapshotProvider {
   }
 
   static var macKind: MacKind {
-    let model = modelIdentifier
-    if model.hasPrefix("MacBook") { return .portable }
-    if model.hasPrefix("iMac") { return .iMac }
-    return .desktop
+    MacKind.detect(
+      modelIdentifier: modelIdentifier,
+      hasInternalBattery: hasInternalBattery,
+      hasBuiltInDisplay: onlineDisplays.contains { CGDisplayIsBuiltin($0) != 0 }
+    )
+  }
+
+  static var hasInternalBattery: Bool {
+    guard let info = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
+      let sources = IOPSCopyPowerSourcesList(info)?.takeRetainedValue() as? [CFTypeRef]
+    else { return false }
+    return sources.contains { source in
+      let description =
+        IOPSGetPowerSourceDescription(info, source)?.takeUnretainedValue()
+        as? [String: Any]
+      return description?[kIOPSTypeKey] as? String == kIOPSInternalBatteryType
+    }
   }
 
   static var hasExternalDisplay: Bool {
+    onlineDisplays.contains { CGDisplayIsBuiltin($0) == 0 }
+  }
+
+  private static var onlineDisplays: [CGDirectDisplayID] {
     var count: UInt32 = 0
     guard CGGetOnlineDisplayList(0, nil, &count) == .success, count > 0 else {
-      return false
+      return []
     }
     var displays = [CGDirectDisplayID](repeating: 0, count: Int(count))
     guard CGGetOnlineDisplayList(count, &displays, &count) == .success else {
-      return false
+      return []
     }
-    return displays.prefix(Int(count)).contains { CGDisplayIsBuiltin($0) == 0 }
+    return Array(displays.prefix(Int(count)))
   }
 
   static var idleSeconds: TimeInterval {
@@ -161,14 +224,14 @@ struct SystemSnapshotProvider {
 final class MonitoringEngine {
   private let provider: SystemSnapshotProvider
   private let onAction: (MonitorAction) -> Void
-  private let onStatus: (MonitorSnapshot, TimeInterval) -> Void
+  private let onStatus: (MonitorSnapshot, TimeInterval, Date?) -> Void
   private var policy = MonitorPolicy()
   private var timer: Timer?
 
   init(
     provider: SystemSnapshotProvider,
     onAction: @escaping (MonitorAction) -> Void,
-    onStatus: @escaping (MonitorSnapshot, TimeInterval) -> Void
+    onStatus: @escaping (MonitorSnapshot, TimeInterval, Date?) -> Void
   ) {
     self.provider = provider
     self.onAction = onAction
@@ -192,7 +255,7 @@ final class MonitoringEngine {
   private func tick() {
     let snapshot = provider.snapshot()
     let action = policy.evaluate(snapshot)
-    onStatus(snapshot, policy.activeSeconds)
+    onStatus(snapshot, policy.activeSeconds, policy.snoozedUntil)
     if action != .none {
       onAction(action)
     }

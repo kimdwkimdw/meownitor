@@ -45,6 +45,8 @@ After publishing, independently download the public assets, verify `SHA256SUMS.t
 
 The current app has an ad-hoc signature, not a Developer ID signature or Apple notarization. Describe it as experimental on the page and in the release. A supported public Mac release still needs Developer ID signing, notarization, and Gatekeeper testing.
 
+Copy the resulting `.build/Meownitor.app` to `/Applications/Meownitor.app` after quitting the installed app, without signing the installed copy again. Keep the bundle ID and installation path consistent across updates. Ad-hoc builds use a code-hash-based designated requirement, so a changed binary may require removing the old Input Monitoring entry and adding the newly installed app again. A checked entry in System Settings alone does not prove that the running binary has access. Preserving permissions across changed binaries requires a stable certificate identity; until then, re-register the installed app after updates and verify actual keyboard input in the setup guide.
+
 For a new asset release, update the tag in `web/content.mjs`, the HTML fallback links, `CatPackStore.remoteCatalogURL`, the bootstrap URL, pack-builder default, and catalog fixtures; regenerate the website catalog and run the checks. The download URL allowlist follows the app’s catalog URL. Keep previous release assets available for older apps.
 
 ## App-only updates

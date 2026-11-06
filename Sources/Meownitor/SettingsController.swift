@@ -2,6 +2,7 @@ import AppKit
 
 final class SettingsController: NSWindowController, NSWindowDelegate {
   private let language: AppLanguage
+  private let keyboardMonitor: ExternalKeyboardMonitor
   private let onPreview: () -> Void
   private let onOpenInputSettings: () -> Void
   private let onLanguageChanged: (AppLanguage) -> Void
@@ -12,16 +13,19 @@ final class SettingsController: NSWindowController, NSWindowDelegate {
   private let packStatus = NSTextField(labelWithString: "")
   private let packButton = NSButton()
   private let packProgress = NSProgressIndicator()
-  private let permissionStatus = NSTextField(labelWithString: "")
+  private let permissionStatus = NSTextField(wrappingLabelWithString: "")
+  private var refreshTimer: Timer?
 
   init(
     language: AppLanguage,
+    keyboardMonitor: ExternalKeyboardMonitor,
     onPreview: @escaping () -> Void,
     onOpenInputSettings: @escaping () -> Void,
     onLanguageChanged: @escaping (AppLanguage) -> Void,
     onCatChanged: @escaping (CatProfile) -> Void
   ) {
     self.language = language
+    self.keyboardMonitor = keyboardMonitor
     self.onPreview = onPreview
     self.onOpenInputSettings = onOpenInputSettings
     self.onLanguageChanged = onLanguageChanged
@@ -46,11 +50,21 @@ final class SettingsController: NSWindowController, NSWindowDelegate {
     nil
   }
 
+  deinit {
+    refreshTimer?.invalidate()
+  }
+
   func show() {
     refresh()
     showWindow(nil)
     NSApp.activate(ignoringOtherApps: true)
     window?.makeKeyAndOrderFront(nil)
+    refreshTimer?.invalidate()
+    let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
+      self?.refreshPermissionStatus()
+    }
+    RunLoop.main.add(timer, forMode: .common)
+    refreshTimer = timer
     Task { @MainActor [weak self] in
       try? await CatPackStore.shared.refreshCatalog()
       self?.refreshPackControls()
@@ -59,6 +73,11 @@ final class SettingsController: NSWindowController, NSWindowDelegate {
 
   func windowDidBecomeKey(_ notification: Notification) {
     refresh()
+  }
+
+  func windowWillClose(_ notification: Notification) {
+    refreshTimer?.invalidate()
+    refreshTimer = nil
   }
 
   private func makeContent() -> NSView {
@@ -133,6 +152,7 @@ final class SettingsController: NSWindowController, NSWindowDelegate {
       sectionTitle(language.text("키보드 감지", "Keyboard Detection"))
     )
     permissionStatus.font = .systemFont(ofSize: 13, weight: .semibold)
+    permissionStatus.widthAnchor.constraint(equalToConstant: 514).isActive = true
     stack.addArrangedSubview(permissionStatus)
     stack.addArrangedSubview(
       bodyLabel(
@@ -179,29 +199,14 @@ final class SettingsController: NSWindowController, NSWindowDelegate {
 
   private func refresh() {
     refreshPackControls()
-    switch ExternalKeyboardMonitor.currentAccessStatus {
-    case .granted:
-      permissionStatus.stringValue =
-        language.text(
-          "✓ 입력 모니터링이 켜져 있습니다",
-          "✓ Input Monitoring is on"
-        )
-      permissionStatus.textColor = .systemGreen
-    case .denied:
-      permissionStatus.stringValue =
-        language.text(
-          "입력 모니터링이 꺼져 있습니다",
-          "Input Monitoring is off"
-        )
-      permissionStatus.textColor = .systemOrange
-    case .unknown:
-      permissionStatus.stringValue =
-        language.text(
-          "입력 모니터링이 아직 설정되지 않았습니다",
-          "Input Monitoring isn’t set up yet"
-        )
-      permissionStatus.textColor = .systemOrange
-    }
+    refreshPermissionStatus()
+  }
+
+  private func refreshPermissionStatus() {
+    keyboardMonitor.refreshAccess()
+    let state = keyboardMonitor.accessStatus
+    permissionStatus.stringValue = state.title(language: language)
+    permissionStatus.textColor = state == .granted ? .systemGreen : .systemOrange
   }
 
   private func sectionTitle(_ text: String) -> NSTextField {

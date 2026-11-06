@@ -2,13 +2,14 @@
 
 ```text
 AppDelegate
+├── ExternalKeyboardMonitor (shared)
 ├── MonitoringEngine
 │   ├── SystemSnapshotProvider
-│   ├── ExternalKeyboardMonitor
 │   └── MonitorPolicy
 ├── SettingsController
 │   ├── CatProfile
 │   └── CatPackStore
+├── InputMonitoringSetupController
 └── OverlayController
     └── SpriteView
 ```
@@ -17,6 +18,8 @@ AppDelegate
 
 - `AppDelegate`: 메뉴바, 언어, 로그인 항목, 미루기와 overlay 수명
 - `MonitorPolicy`: 입력 시간과 하드웨어 상태를 판단하는 순수 상태 머신
+- `SystemSnapshotProvider`: IOKit의 내장 배터리와 CoreGraphics의 내장 화면으로 MacBook/iMac을 판별한다. 최신 `Mac` model identifier도 지원하며 외장 UPS는 노트북으로 간주하지 않는다.
+- `ExternalKeyboardMonitor`: `AppDelegate`가 하나를 소유하고 snapshot·설정·온보딩이 공유한다. 시스템 권한, manager 열기, 실제 key-down 수신을 구분하며, 권한 회수 시 입력 상태를 지운다.
 - `OverlayController`: `CGDisplayIsBuiltin`으로 찾은 온라인 내장 화면에만 패널 표시
 - `SpriteView`: `8778×1254` 스트립을 일곱 개의 `1254×1254` 프레임으로 재생
 - `CatProfile`: 21개 고양이의 ID·한/영 이름·품종

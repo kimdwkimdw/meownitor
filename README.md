@@ -11,7 +11,7 @@ A small cat. A gentler workday. A native macOS menu bar companion that reminds y
 - **MacBook:** a cat appears after 25 active minutes using the built-in screen and keyboard. Connecting an external display or using an external keyboard resets the timer.
 - **iMac:** a small break reminder every 30–60 minutes. Other desktop Macs do not show reminders.
 - Snooze for 30 minutes, one hour, or two; press Escape twice to dismiss. Cat overlays stay on the built-in display.
-- Open Input Monitoring setup and drag the app icon from its floating guide into System Settings. A Finder shortcut is available too.
+- Open Input Monitoring setup, request permission, and enable Meownitor in System Settings. The floating guide provides the running app to drag or locate in Finder, plus a reopen button. Setup reports success only after receiving a keyboard input; permission alone is not treated as verified detection.
 - Choose **Don’t Show Again** on the Input Monitoring notice to hide it permanently, including after relaunch. Settings still shows the current permission status.
 - No camera, account, or saved keystrokes. Optional Input Monitoring permission distinguishes external keyboards; without it, display detection still works. Asset downloads connect to GitHub.
 
@@ -57,6 +57,8 @@ python3 -m http.server 8767 --bind 127.0.0.1 --directory web
 ```
 
 Open `http://127.0.0.1:8767/`. Language links use `?lang=en`, `?lang=ko`, and `?lang=ja`. The first visit follows the browser language; an explicit choice is remembered locally. Reduced-motion preferences disable the preview animation.
+
+Local builds use ad-hoc signing. Copy the exact built app to `/Applications/Meownitor.app` without re-signing it. When the binary changes, Input Monitoring access may need to be registered again; the setup guide explains how to re-add the installed app. See [signing notes](docs/RELEASING.md#signing-and-future-releases).
 
 GitHub Actions validates `web/` and deploys it to Pages on `main`. Only optimized web previews are tracked. `Resources/`, `dist/`, source artwork, intermediate frames, and local QA files stay out of Git.
 
